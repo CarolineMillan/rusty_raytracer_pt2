@@ -9,7 +9,13 @@ mod material;
 mod lambertian;
 mod metal;
 mod dielectric;
+mod aabb;
+mod bvh;
+mod texture;
+mod solid_colour;
 
+use bvh::BVHNode;
+use hittable::Hittable;
 use std::f32;
 use colour::Colour;
 use dielectric::Dielectric;
@@ -32,6 +38,27 @@ fn degrees_to_radians(degrees: f32) -> f32 {
 fn random_f32() -> f32 {
     let mut rng = rng();
     rng.random()
+}
+
+fn random_u32() -> u32 {
+    let mut rng = rng();
+    return rng.random::<u32>();
+}
+
+/*
+fn random_u32_within(min: u32, max: u32) -> u32 {
+    let mut rng = rng();
+    let random_u32: u32 = rng.random::<u32>();
+    return min + (max-min)*random_u32;
+}
+*/
+
+fn random_u32_within(min: u32, max: u32) -> u32 {
+    let mut rng = rng();
+    let range = (max - min) as u64;
+    let random_u32 = rng.random::<u32>() as u64;
+    let scaled = (random_u32 * range) / (u32::MAX as u64 + 1);
+    min + scaled as u32
 }
 
 fn random_f32_within(min: f32, max: f32) -> f32 {
@@ -121,7 +148,8 @@ pub fn main() -> std::io::Result<()>{
                     let alb_col = Vector3::new(col_vec1[0]*col_vec2[0], col_vec1[1]*col_vec2[1], col_vec1[2]*col_vec2[2]);
                     let albedo = Colour::new_from(alb_col[0], alb_col[1], alb_col[2]);
                     sphere_material = Box::new(Lambertian::new_from(albedo));
-                    world.add(Box::new(Sphere::new(center, 0.2, sphere_material)));
+                    let center2 = center + Vector3::new(0.0, random_f32(), 0.0);
+                    world.add(Box::new(Sphere::new_moving(center, center2, 0.2, sphere_material)));
                 }
                 else if choose_mat < 0.95 {
                     //metal
@@ -149,15 +177,20 @@ pub fn main() -> std::io::Result<()>{
     let material3 = Box::new(Metal::new_from(Colour::new_from(0.7, 0.6, 0.5), 0.0));
     world.add(Box::new(Sphere::new(Point3::new(4.0, 1.0, 0.0), 1.0, material3)));
 
-    let sync_world = Arc::new(&world);
+    println!("World has {} objects", &world.objects.len());
+    let world_bbox  = BVHNode::from_hittable_list(world);
+    let sync_world: Arc<dyn Hittable + Send + Sync> = Arc::new(world_bbox);
+    //let sync_world = Arc::new(&world);
 
+    println!("created sync world");
 
     let mut cam = Camera::new();
 
     cam.aspect_ratio      = 16.0 / 9.0;
+    // keep width at 1200, it doesn't work at 400
     cam.image_width       = 1200.0;
-    cam.samples_per_pixel = 100;
-    cam.max_depth         = 50;
+    cam.samples_per_pixel = 10;
+    cam.max_depth         = 5;
 
     cam.vfov     = 20;
     cam.lookfrom = Point3::new(13.0,2.0,3.0);
@@ -167,7 +200,13 @@ pub fn main() -> std::io::Result<()>{
     cam.defocus_angle = 0.6;
     cam.focus_dist    = 10.0;
 
+    println!("pre render");
+
+    
+
     let _ = cam.render(&sync_world);
+
+    println!("post render");
 
     Ok(())
 }

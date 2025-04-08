@@ -30,9 +30,10 @@ impl Material for Metal {
         let mut reflected = reflect(&r_in.direction(), &rec.normal);
         reflected = reflected.normalize() + (self.fuzz*random_unit_vector());
 
-        let scattered = Ray::new_from(rec.p, reflected);
+        let scattered = Ray::new_from(rec.p, reflected, r_in.time());
         let attenuation = self.albedo.clone();
         if scattered.direction().dot(&rec.normal) > 0.0 {
+            //println!("metal scattered: {:?}", scattered);
             Some((attenuation, scattered))
         } else {
             None

@@ -1,4 +1,5 @@
 use crate::lambertian::Lambertian;
+use crate::aabb::AABB;
 use crate::{material::Material, ray::Ray};
 use crate::interval::Interval;
 
@@ -10,6 +11,15 @@ pub trait Hittable: Send + Sync {
     fn hit(&self, _ray: &Ray, _ray_t: &Interval) -> Option<HitRecord> {
         None
     }
+    fn bounding_box(&self) -> AABB;
+
+    fn clone_box(&self) -> Box<dyn Hittable>;
+}
+
+impl Clone for Box<dyn Hittable> {
+    fn clone(&self) -> Box<dyn Hittable> {
+        self.clone_box()
+    }
 }
 
 //#[derive(Clone)]
@@ -19,6 +29,9 @@ pub struct HitRecord {
     pub mat: Box<dyn Material>,
     pub t: f32,
     pub front_face: bool,
+    // texture coords
+    pub u: f32,
+    pub v: f32,
 }
 
 impl HitRecord {
@@ -32,6 +45,8 @@ impl HitRecord {
             mat: Box::new(Lambertian::new()), //use default lambertian material
             t: 0.0,
             front_face: false, //FIXME
+            u: 0.0,
+            v: 0.0
         }
     }
     
@@ -43,6 +58,8 @@ impl HitRecord {
             mat,
             t,
             front_face: false, // FIXME
+            u: 0.0,
+            v: 0.0,
         }
     }
 

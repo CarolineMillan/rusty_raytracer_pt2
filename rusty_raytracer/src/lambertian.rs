@@ -25,8 +25,9 @@ impl Material for Lambertian {
         
         if near_zero(scatter_direction) {scatter_direction = rec.normal}// + random_unit_vector()}
         
-        let scattered = Ray::new_from(rec.p, scatter_direction);
+        let scattered = Ray::new_from(rec.p, scatter_direction, r_in.time());
         let attenuation = self.albedo.clone();
+        //println!("lambertian scattered: {:?}", scattered);
         Some((attenuation, scattered))
     }
     fn clone_box(&self) -> Box<dyn Material + Send + Sync> {

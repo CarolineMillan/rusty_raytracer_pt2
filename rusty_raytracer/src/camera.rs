@@ -128,11 +128,12 @@ impl Camera {
         
         let ray_origin = if self.defocus_angle <= 0.0 {self.center} else {self.defocus_disk_sample()};
         let ray_direction = pixel_sample - ray_origin;
+        let ray_time = random_f32();
 
-        Ray::new_from(ray_origin, ray_direction)
+        Ray::new_from(ray_origin, ray_direction, ray_time)
     }
 
-    pub fn render(&mut self, world: &Arc<&HittableList>) -> io::Result<()> {
+    pub fn render(&mut self, world: &Arc<dyn Hittable + Send + Sync>) -> io::Result<()> {
 
         self.initialise();
         // render
@@ -179,21 +180,28 @@ impl Camera {
     }
 }
 
-fn ray_colour(ray: &Ray, depth: u32, world: &Arc<&HittableList>) -> Colour {
+fn ray_colour(ray: &Ray, depth: u32, world: &Arc<dyn Hittable + Send + Sync>) -> Colour {
     if depth <= 0 {return Colour::new()};
 
     let my_world = Arc::clone(&world);
+
+    //println!("{:?}", ray);
     
+    // we never get a hit for some reason
+    // something wrong with ray? sphere hit method? my_world?
     if let Some(hit_rec) = my_world.hit(ray, &Interval::new(0.001, f32::INFINITY)) {
         //set face normal
+        //println!("we have a hit!");
         if let Some((attenuation, scattered)) = hit_rec.mat.scatter(&ray, &hit_rec) { 
+            //println!("Scattered!");
             let r_col = ray_colour(&scattered, depth-1, &my_world);
             
             return Colour::new_from(attenuation.r()*r_col.r(), attenuation.g()*r_col.g(), attenuation.b()*r_col.b())
         }
+        //else {println!("Hit no scatter")};
         return Colour::new()
     }
-
+    //println!("*");
     // else draw sky
     let unit_direction = ray.direction().normalize();
     let a = 0.5 * (unit_direction.y + 1.0);

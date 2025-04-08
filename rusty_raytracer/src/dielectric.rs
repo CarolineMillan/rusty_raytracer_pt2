@@ -45,8 +45,8 @@ impl Material for Dielectric {
         if cannot_refract || (self.reflectance(cos_theta, ri) > random_f32()) {direction = reflect(&unit_direction, &rec.normal)}
         else {direction = refract(&unit_direction, &rec.normal, ri)}        
 
-        let scattered = Ray::new_from(rec.p, direction);
-
+        let scattered = Ray::new_from(rec.p, direction, r_in.time());
+        //println!("dielectric scattered: {:?}", scattered);
         Some((attenuation, scattered))
     }
     fn clone_box(&self) -> Box<dyn Material + Send + Sync> {
