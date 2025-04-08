@@ -1,20 +1,28 @@
-use crate::{colour::Colour, hittable::HitRecord, material::Material, near_zero, random_unit_vector, ray::Ray};
+use crate::{colour::Colour, hittable::HitRecord, material::Material, near_zero, random_unit_vector, ray::Ray, solid_colour::SolidColour, texture::Texture};
 
 
 pub struct Lambertian {
-    albedo: Colour,
+    tex: Box<dyn Texture>,
 }
 
 impl Lambertian {
     pub fn new() -> Self {
         Self {
-            albedo: Colour::new(),
+            tex: Box::new(SolidColour::new_from_colour(Colour::new())),
+            //albedo: Colour::new(),
         }
     }
 
     pub fn new_from(albedo: Colour) -> Self {
         Self {
-            albedo,
+            tex: Box::new(SolidColour::new_from_colour(albedo)),
+            //albedo,
+        }
+    }
+
+    pub fn new_from_tex(tex:Box<dyn Texture>) -> Self {
+        Self {
+            tex,
         }
     }
 }
@@ -26,7 +34,7 @@ impl Material for Lambertian {
         if near_zero(scatter_direction) {scatter_direction = rec.normal}// + random_unit_vector()}
         
         let scattered = Ray::new_from(rec.p, scatter_direction, r_in.time());
-        let attenuation = self.albedo.clone();
+        let attenuation = self.tex.value(rec.u, rec.v, &rec.p);//self.albedo.clone();
         //println!("lambertian scattered: {:?}", scattered);
         Some((attenuation, scattered))
     }
@@ -38,7 +46,8 @@ impl Material for Lambertian {
 impl Clone for Lambertian {
     fn clone(&self) -> Self {
         Self {
-            albedo: self.albedo.clone(),
+            tex: self.tex.clone_box(),
+            //albedo: self.albedo.clone(),
         }
     }
 }

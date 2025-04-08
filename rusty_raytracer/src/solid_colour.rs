@@ -7,13 +7,13 @@ pub struct SolidColour {
 }
 
 impl SolidColour {
-    fn new_from_colour(albedo: Colour) -> Self {
+    pub fn new_from_colour(albedo: Colour) -> Self {
         Self {
             albedo,
         }
     }
 
-    fn new_from_rgb(r: f32, g: f32, b: f32) -> Self {
+    pub fn new_from_rgb(r: f32, g: f32, b: f32) -> Self {
         Self {
             albedo: Colour::new_from(r, g, b),
         }
@@ -26,6 +26,14 @@ impl Texture for SolidColour {
     }
 
     fn clone_box(&self) -> Box<dyn Texture + Send + Sync> {
-        todo!()
+        Box::new(self.clone())
+    }
+}
+
+impl Clone for SolidColour {
+    fn clone(&self) -> Self {
+        Self {
+            albedo: self.albedo.clone(),
+        }
     }
 }
