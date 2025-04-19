@@ -1,4 +1,4 @@
-use crate::{colour::Colour, hittable::HitRecord, material::Material, near_zero, random_unit_vector, ray::Ray, solid_colour::SolidColour, texture::Texture};
+use crate::{colour::Colour, hittable::HitRecord, material::Material, vector_math::{near_zero, random_unit_vector}, ray::Ray, solid_colour::SolidColour, texture::Texture};
 
 
 pub struct Lambertian {

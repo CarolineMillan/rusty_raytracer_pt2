@@ -1,6 +1,6 @@
 use std::cmp::Ordering;
 
-use crate::{aabb::AABB, hittable::{HitRecord, Hittable}, hittable_list::HittableList, interval::Interval, random_u32_within, ray::Ray};
+use crate::{aabb::AABB, hittable::{HitRecord, Hittable}, hittable_list::HittableList, interval::Interval, vector_math::random_u32_within, ray::Ray};
 
 #[derive(Clone)]
 pub struct BVHNode {

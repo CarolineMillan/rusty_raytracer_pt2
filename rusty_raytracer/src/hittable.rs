@@ -29,7 +29,7 @@ pub struct HitRecord {
     pub mat: Box<dyn Material>,
     pub t: f32,
     pub front_face: bool,
-    // texture coords
+    // texture (spherical) coords
     pub u: f32,
     pub v: f32,
 }

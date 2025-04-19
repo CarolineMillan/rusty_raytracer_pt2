@@ -13,7 +13,7 @@ use std::sync::atomic::{AtomicUsize, Ordering};
 
 use crate::colour::write_colour_string;
 use crate::interval::Interval;
-use crate::{degrees_to_radians, random_f32, random_in_unit_disk};
+use crate::vector_math::{degrees_to_radians, random_f32, random_in_unit_disk};
 use crate::{hittable::Hittable, hittable_list::HittableList, ray::Ray, colour::{write_colour, Colour}};
 
 pub struct Camera {
@@ -118,6 +118,11 @@ impl Camera {
         self.defocus_disk_v = self.v*defocus_radius;
         // Double-check deltas
         println!("Pixel deltas: u = {:?}, v = {:?}", self.pixel_delta_u, self.pixel_delta_v);
+    }
+
+    pub fn set_image_size(&mut self, width: f32) {
+        self.image_width  = width;
+        self.image_height = width / self.aspect_ratio;
     }
 
     pub fn get_ray(&self, i: usize, j: usize) -> Ray {

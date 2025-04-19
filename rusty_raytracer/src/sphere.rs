@@ -1,9 +1,12 @@
+use std::env::consts;
+
 use crate::aabb::AABB;
 use crate::hittable::{Hittable, HitRecord};
 use crate::interval::Interval;
 use crate::ray::Ray;
 use crate::material::Material;
 use nalgebra::{Point3, Vector3};
+use nalgebra::RealField;
 
 #[derive(Clone)]
 
@@ -37,6 +40,20 @@ impl Sphere {
             mat,
             bbox: AABB::new_from_boxes(&box1, &box2),
         }
+    }
+
+    pub fn get_sphere_uv(p: &Point3<f32>) -> (f32, f32) {
+        // p: a given point on the sphere of radius one, centered at the origin.
+        // u: returned value [0,1] of angle around the Y axis from X=-1.
+        // v: returned value [0,1] of angle from Y=-1 to Y=+1.
+        //     <1 0 0> yields <0.50 0.50>       <-1  0  0> yields <0.00 0.50>
+        //     <0 1 0> yields <0.50 1.00>       < 0 -1  0> yields <0.50 0.00>
+        //     <0 0 1> yields <0.25 0.50>       < 0  0 -1> yields <0.75 0.50>
+        let y_clamped = p.y.max(-1.0).min(1.0);
+        let theta = y_clamped.acos();
+        let phi = -p.z.atan2(p.x) + std::f32::consts::PI;
+
+        return (phi/(2.0*std::f32::consts::PI), 1.0 - (theta/std::f32::consts::PI));
     }
 }
 
@@ -86,6 +103,9 @@ impl Hittable for Sphere {
         let mut rec = HitRecord::new_from(p, normal, self.mat.clone(), t);
 
         rec.set_face_normal(ray, &normal);
+        // the tutorial used &normal for getting the uv, but it's not a point?
+        let unit_p = Point3::new(normal.x, normal.y, normal.z);
+        (rec.u, rec.v) = Sphere::get_sphere_uv(&unit_p);
 
         Some(rec)
     }
