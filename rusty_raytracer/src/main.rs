@@ -171,9 +171,9 @@ fn earth() -> Result {
 
     cam.aspect_ratio      = 16.0 / 9.0;
     // keep width at 1200, it doesn't work at 400
-    cam.image_width       = 1200.0;
-    cam.samples_per_pixel = 10;
-    cam.max_depth         = 5; 
+    cam.image_width       = 400.0;
+    cam.samples_per_pixel = 100;
+    cam.max_depth         = 50; 
 
     cam.vfov     = 20;
     cam.lookfrom = Point3::new(0.0,0.0,12.0);
@@ -215,13 +215,14 @@ fn quick_earth_test() -> Result {
     cam.defocus_angle = 0.0;
 
     // 3) Render and inspect immediately
-    cam.render(&sync_world);
+    let _ = cam.render(&sync_world);
     Ok(())
 }
 
+
 pub fn main() -> Result {
 
-    match 4 {
+    match 3 {
         1 => bouncing_spheres(),
         2 => checkered_spheres(),
         3 => earth(),
