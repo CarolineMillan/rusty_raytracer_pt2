@@ -17,7 +17,10 @@ mod checkered_texture;
 mod rtw_image;
 mod image_texture;
 mod vector_math;
+mod perlin;
+mod noise_texture;
 
+use noise_texture::NoiseTexture;
 use vector_math::{random_f32, random_f32_within, random_vec3, random_vec3_within};
 use checkered_texture::CheckerTexture;
 use bvh::BVHNode;
@@ -219,14 +222,48 @@ fn quick_earth_test() -> Result {
     Ok(())
 }
 
+fn perlin_spheres() -> Result {
+
+    //World
+    let mut world = HittableList::new();
+
+    let pertext = Box::new(NoiseTexture::new(4.0));
+    let ground_material = Box::new(Lambertian::new_from_tex(pertext));
+    world.add(Box::new(Sphere::new(Point3::new(0.0,-1000.0,0.0), 1000.0, ground_material.clone())));
+    world.add(Box::new(Sphere::new(Point3::new(0.0,2.0,0.0), 2.0, ground_material.clone())));
+
+    let world_bbox  = BVHNode::from_hittable_list(world);
+    let sync_world: Arc<dyn Hittable + Send + Sync> = Arc::new(world_bbox);
+    
+
+    let mut cam = Camera::new();
+    
+        cam.aspect_ratio      = 16.0 / 9.0;
+        // keep width at 1200, it doesn't work at 400
+        cam.image_width       = 1200.0;
+        cam.samples_per_pixel = 10;
+        cam.max_depth         = 5;
+    
+        cam.vfov     = 20;
+        cam.lookfrom = Point3::new(13.0,2.0,3.0);
+        cam.lookat   = Point3::new(0.0,0.0,0.0);
+        cam.vup      = Vector3::new(0.0,1.0,0.0);
+    
+        cam.defocus_angle = 0.0;
+    
+        let _ = cam.render(&sync_world);
+    
+        Ok(())
+}
 
 pub fn main() -> Result {
 
-    match 3 {
+    match 5 {
         1 => bouncing_spheres(),
         2 => checkered_spheres(),
         3 => earth(),
         4 => quick_earth_test(),
+        5 => perlin_spheres(),
         _ => {todo!()}
     }
     
