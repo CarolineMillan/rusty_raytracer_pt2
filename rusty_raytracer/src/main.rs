@@ -20,7 +20,9 @@ mod vector_math;
 mod perlin;
 mod noise_texture;
 mod quad; 
+mod diffuse_light;
 
+use diffuse_light::DiffuseLight;
 use noise_texture::NoiseTexture;
 use quad::Quad;
 use vector_math::{random_f32, random_f32_within, random_vec3, random_vec3_within};
@@ -111,6 +113,7 @@ fn bouncing_spheres() -> Result {
         cam.image_width       = 1200.0;
         cam.samples_per_pixel = 10;
         cam.max_depth         = 5;
+        cam.background = Colour::new_from(0.7, 0.8, 1.0);
     
         cam.vfov     = 20;
         cam.lookfrom = Point3::new(13.0,2.0,3.0);
@@ -146,6 +149,7 @@ fn checkered_spheres() -> Result {
         cam.image_width       = 1200.0;
         cam.samples_per_pixel = 10;
         cam.max_depth         = 5;
+        cam.background = Colour::new_from(0.7, 0.8, 1.0);
     
         cam.vfov     = 20;
         cam.lookfrom = Point3::new(13.0,2.0,3.0);
@@ -179,6 +183,7 @@ fn earth() -> Result {
     cam.image_width       = 400.0;
     cam.samples_per_pixel = 100;
     cam.max_depth         = 50; 
+    cam.background = Colour::new_from(0.7, 0.8, 1.0);
 
     cam.vfov     = 20;
     cam.lookfrom = Point3::new(0.0,0.0,12.0);
@@ -211,6 +216,7 @@ fn quick_earth_test() -> Result {
     cam.set_image_size(1200.0);//       = 800.0;    // << small!
     cam.samples_per_pixel = 1;        // << minimal AA
     cam.max_depth         = 2;        // << minimal bounces
+    cam.background = Colour::new_from(0.7, 0.8, 1.0);
 
     // Zoom in so you can actually see the sphere
     cam.vfov     = 20;
@@ -240,22 +246,23 @@ fn perlin_spheres() -> Result {
 
     let mut cam = Camera::new();
     
-        cam.aspect_ratio      = 16.0 / 9.0;
-        // keep width at 1200, it doesn't work at 400
-        cam.image_width       = 1200.0;
-        cam.samples_per_pixel = 10;
-        cam.max_depth         = 5;
-    
-        cam.vfov     = 20;
-        cam.lookfrom = Point3::new(13.0,2.0,3.0);
-        cam.lookat   = Point3::new(0.0,0.0,0.0);
-        cam.vup      = Vector3::new(0.0,1.0,0.0);
-    
-        cam.defocus_angle = 0.0;
-    
-        let _ = cam.render(&sync_world);
-    
-        Ok(())
+    cam.aspect_ratio      = 16.0 / 9.0;
+    // keep width at 1200, it doesn't work at 400
+    cam.image_width       = 1200.0;
+    cam.samples_per_pixel = 10;
+    cam.max_depth         = 5;
+    cam.background = Colour::new_from(0.7, 0.8, 1.0);
+
+    cam.vfov     = 20;
+    cam.lookfrom = Point3::new(13.0,2.0,3.0);
+    cam.lookat   = Point3::new(0.0,0.0,0.0);
+    cam.vup      = Vector3::new(0.0,1.0,0.0);
+
+    cam.defocus_angle = 0.0;
+
+    let _ = cam.render(&sync_world);
+
+    Ok(())
 }
 
 fn quads() -> Result {
@@ -292,6 +299,7 @@ fn quads() -> Result {
     cam.image_width       = 1200.0;
     cam.samples_per_pixel = 10;
     cam.max_depth         = 5;
+    cam.background = Colour::new_from(0.7, 0.8, 1.0);
 
     cam.vfov     = 80;
     cam.lookfrom = Point3::new(0.0,0.0,9.0);
@@ -305,15 +313,99 @@ fn quads() -> Result {
     Ok(())
 }
 
+fn simple_light() -> Result {
+
+    //World
+    let mut world = HittableList::new();
+
+    let pertext = Box::new(NoiseTexture::new(4.0));
+    let ground_material = Box::new(Lambertian::new_from_tex(pertext));
+    world.add(Box::new(Sphere::new(Point3::new(0.0,-1000.0,0.0), 1000.0, ground_material.clone())));
+    world.add(Box::new(Sphere::new(Point3::new(0.0,2.0,0.0), 2.0, ground_material.clone())));
+
+    let difflight = Box::new(DiffuseLight::new_from(Colour::new_from(4.0, 4.0, 4.0)));
+    world.add(Box::new(Sphere::new(Point3::new(0.0, 7.0, 0.0), 2.0, difflight.clone())));
+    world.add(Box::new(Quad::new(Point3::new(3.0, 1.0,  -2.0), Vector3::new(2.0, 0.0, 0.0), Vector3::new(0.0, 2.0, 0.0), difflight.clone())));
+
+    let world_bbox  = BVHNode::from_hittable_list(world);
+    let sync_world: Arc<dyn Hittable + Send + Sync> = Arc::new(world_bbox);
+    
+
+    let mut cam = Camera::new();
+    
+    cam.aspect_ratio      = 16.0 / 9.0;
+    // keep width at 1200, it doesn't work at 400
+    cam.image_width       = 1200.0;
+    cam.samples_per_pixel = 10;
+    cam.max_depth         = 5;
+    cam.background = Colour::new_from(0.0, 0.0, 0.0);
+
+    cam.vfov     = 20;
+    cam.lookfrom = Point3::new(26.0,3.0,6.0);
+    cam.lookat   = Point3::new(0.0,2.0,0.0);
+    cam.vup      = Vector3::new(0.0,1.0,0.0);
+
+    cam.defocus_angle = 0.0;
+
+    let _ = cam.render(&sync_world);
+
+    Ok(())
+}
+
+fn cornell_box() -> Result {
+
+    //World
+    let mut world = HittableList::new();
+
+    let red = Box::new(Lambertian::new_from(Colour::new_from(0.65, 0.05, 0.05)));
+    let white = Box::new(Lambertian::new_from(Colour::new_from(0.73, 0.73, 0.73)));
+    let green = Box::new(Lambertian::new_from(Colour::new_from(0.12, 0.45, 0.15)));
+    let light = Box::new(DiffuseLight::new_from(Colour::new_from(15.0, 15.0, 15.0)));
+
+    world.add(Box::new(Quad::new(Point3::new(555.0, 0.0,  0.0), Vector3::new(0.0, 555.0, 0.0), Vector3::new(0.0, 0.0, 555.0), green.clone())));
+    world.add(Box::new(Quad::new(Point3::new(0.0, 0.0,  0.0), Vector3::new(0.0, 555.0, 0.0), Vector3::new(0.0, 0.0, 555.0), red.clone())));
+    world.add(Box::new(Quad::new(Point3::new(343.0, 554.0,  332.0), Vector3::new(-130.0, 0.0, 0.0), Vector3::new(0.0, 0.0, -105.0), light.clone())));
+    world.add(Box::new(Quad::new(Point3::new(0.0, 0.0,  0.0), Vector3::new(555.0, 0.0, 0.0), Vector3::new(0.0, 0.0, 555.0), white.clone())));
+    world.add(Box::new(Quad::new(Point3::new(555.0, 555.0,  555.0), Vector3::new(-555.0, 0.0, 0.0), Vector3::new(0.0, 0.0, -555.0), white.clone())));
+    world.add(Box::new(Quad::new(Point3::new(0.0, 0.0,  555.0), Vector3::new(555.0, 0.0, 0.0), Vector3::new(0.0, 555.0, 0.0), white.clone())));
+
+
+    let world_bbox  = BVHNode::from_hittable_list(world);
+    let sync_world: Arc<dyn Hittable + Send + Sync> = Arc::new(world_bbox);
+    
+
+    let mut cam = Camera::new();
+    
+    cam.aspect_ratio      = 1.0;
+    // keep width at 1200, it doesn't work at 400
+    cam.image_width       = 1200.0;
+    cam.samples_per_pixel = 10;
+    cam.max_depth         = 5;
+    cam.background = Colour::new_from(0.0, 0.0, 0.0);
+
+    cam.vfov     = 40;
+    cam.lookfrom = Point3::new(278.0,278.0,-800.0);
+    cam.lookat   = Point3::new(278.0,278.0,0.0);
+    cam.vup      = Vector3::new(0.0,1.0,0.0);
+
+    cam.defocus_angle = 0.0;
+
+    let _ = cam.render(&sync_world);
+
+    Ok(())
+}
+
 pub fn main() -> Result {
 
-    match 6 {
+    match 8 {
         1 => bouncing_spheres(),
         2 => checkered_spheres(),
         3 => earth(),
         4 => quick_earth_test(),
         5 => perlin_spheres(),
         6 => quads(),
+        7 => simple_light(),
+        8 => cornell_box(),
         _ => {todo!()}
     }
     

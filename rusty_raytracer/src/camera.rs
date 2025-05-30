@@ -11,7 +11,7 @@ use rayon::prelude::*;
 use rayon::iter::IntoParallelIterator;
 use std::sync::atomic::{AtomicUsize, Ordering};
 
-use crate::colour::write_colour_string;
+use crate::colour::{self, write_colour_string};
 use crate::interval::Interval;
 use crate::vector_math::{degrees_to_radians, random_f32, random_in_unit_disk};
 use crate::{hittable::Hittable, hittable_list::HittableList, ray::Ray, colour::{write_colour, Colour}};
@@ -21,6 +21,7 @@ pub struct Camera {
     pub image_width: f32,
     pub samples_per_pixel: u32,
     pub max_depth: u32,
+    pub background: Colour,
     pub vfov: u32,
     pub lookfrom: Point3<f32>,
     pub lookat: Point3<f32>,
@@ -47,6 +48,7 @@ impl Camera {
             image_width: 100.0,
             samples_per_pixel: 10,
             max_depth: 10,
+            background: Colour::new(),
             vfov: 90,
             lookfrom: Point3::origin(),
             lookat: Point3::new(0.0, 0.0, -1.0),
@@ -159,7 +161,7 @@ impl Camera {
                     let mut pixel_colour = Colour::new();
                     for _ in 0..self.samples_per_pixel {
                         let r = self.get_ray(i, j);
-                        pixel_colour.0 += ray_colour(&r, self.max_depth, &my_world).0;
+                        pixel_colour.0 += self.ray_colour(&r, self.max_depth, &my_world).0;
                     }
                     pixel_colour.0 *= self.pixel_samples_scale;
                     row.push_str(&format!("{}\n", write_colour_string(pixel_colour)));
@@ -183,35 +185,46 @@ impl Camera {
         let p = random_in_unit_disk();
         return self.center + (p[0]*self.defocus_disk_u) + (p[1]*self.defocus_disk_v);
     }
-}
 
-fn ray_colour(ray: &Ray, depth: u32, world: &Arc<dyn Hittable + Send + Sync>) -> Colour {
-    if depth <= 0 {return Colour::new()};
 
-    let my_world = Arc::clone(&world);
+    fn ray_colour(&self, ray: &Ray, depth: u32, world: &Arc<dyn Hittable + Send + Sync>) -> Colour {
+        if depth <= 0 {return Colour::new()};
 
-    //println!("{:?}", ray);
-    
-    // we never get a hit for some reason
-    // something wrong with ray? sphere hit method? my_world?
-    if let Some(hit_rec) = my_world.hit(ray, &Interval::new(0.001, f32::INFINITY)) {
-        //set face normal
-        //println!("we have a hit!");
-        if let Some((attenuation, scattered)) = hit_rec.mat.scatter(&ray, &hit_rec) { 
-            //println!("Scattered!");
-            let r_col = ray_colour(&scattered, depth-1, &my_world);
+        let my_world = Arc::clone(&world);
+
+        if let Some(hit_rec) = my_world.hit(ray, &Interval::new(0.001, f32::INFINITY)) {
+            // if we have a hit
+            let colour_from_emmision = hit_rec.mat.emitted(hit_rec.u, hit_rec.v, hit_rec.p);
+                
+            //set face normal
+            if let Some((attenuation, scattered)) = hit_rec.mat.scatter(&ray, &hit_rec) { 
+                // if we have a scatter
+                let r_col = self.ray_colour(&scattered, depth-1, &my_world);
+                let colour_from_scatter = Colour::new_from(attenuation.r()*r_col.r(), attenuation.g()*r_col.g(), attenuation.b()*r_col.b());
+                return Colour::new_from(colour_from_emmision.r() + colour_from_scatter.r(), colour_from_emmision.g() + colour_from_scatter.g(), colour_from_emmision.b() + colour_from_scatter.b());
+                //return Colour::new_from(attenuation.r()*r_col.r(), attenuation.g()*r_col.g(), attenuation.b()*r_col.b())
+            }
+            else {
+                return colour_from_emmision;
+            }
+            //else {println!("Hit no scatter")};
             
-            return Colour::new_from(attenuation.r()*r_col.r(), attenuation.g()*r_col.g(), attenuation.b()*r_col.b())
+            //return Colour::new()
         }
-        //else {println!("Hit no scatter")};
-        return Colour::new()
+        else {
+            //no hit so return background colour
+            return self.background.clone();
+        }
+        //println!("*");
+        // else draw sky/background
+
+        /*
+        let unit_direction = ray.direction().normalize();
+        let a = 0.5 * (unit_direction.y + 1.0);
+        let ans = (1.0-a)*Colour::new_from(1.0, 1.0, 1.0).0 + a*Colour::new_from(0.5, 0.7, 1.0).0;
+        Colour::new_from(ans[0], ans[1], ans[2])
+        */
     }
-    //println!("*");
-    // else draw sky
-    let unit_direction = ray.direction().normalize();
-    let a = 0.5 * (unit_direction.y + 1.0);
-    let ans = (1.0-a)*Colour::new_from(1.0, 1.0, 1.0).0 + a*Colour::new_from(0.5, 0.7, 1.0).0;
-    Colour::new_from(ans[0], ans[1], ans[2])
 }
 
 fn sample_square() -> Vector3<f32> {

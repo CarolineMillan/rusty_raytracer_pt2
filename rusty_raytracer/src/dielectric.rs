@@ -18,6 +18,13 @@ impl Dielectric {
             refraction_index,
         }
     }
+
+    fn reflectance(&self, cosine: f32, ri: f32) -> f32 {
+        // Schlick's approximation
+        let mut r0 = (1.0-ri)/(1.0+ri);
+        r0 = r0 *r0;
+        r0 + (1.0-r0)*f32::powf(1.0-cosine, 5.0)
+    }
     
 }
 
@@ -59,14 +66,5 @@ impl Clone for Dielectric {
         Self {
             refraction_index: self.refraction_index.clone(),
         }
-    }
-}
-
-impl Dielectric {
-    fn reflectance(&self, cosine: f32, ri: f32) -> f32 {
-        // Schlick's approximation
-        let mut r0 = (1.0-ri)/(1.0+ri);
-        r0 = r0 *r0;
-        r0 + (1.0-r0)*f32::powf(1.0-cosine, 5.0)
     }
 }
