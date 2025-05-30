@@ -4,4 +4,4 @@ This project follows the tutorial [_Ray Tracing: The Next Week_](https://raytrac
 
 I am working in Rust so that I write my own code, the tutorial uses C++. 
 
-I have completed the chapters on Motion Blur, Bounding Volume Heirarchies and Texture Mapping. I am currently working on Perlin Noise.
+I have completed the chapters on Motion Blur, Bounding Volume Heirarchies, Texture Mapping, Perlin Noise and Quadrilateral Primitives. I am currently working on Lights.

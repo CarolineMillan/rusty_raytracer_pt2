@@ -15,19 +15,23 @@ pub struct AABB {
 
 impl AABB {
     pub fn empty() -> Self {
-        Self {
+        let mut ans = Self {
             x: Interval::empty(),
             y: Interval::empty(),
             z: Interval::empty(),
-        }
+        };
+        ans.pad_to_minimums();
+        return ans;
     }
 
     pub fn new(x: Interval, y: Interval, z: Interval) -> Self {
-        Self {
+        let mut ans = Self {
             x,
             y,
             z,
-        }
+        };
+        ans.pad_to_minimums();
+        return ans;
     }
 
     pub fn new_from_extrema(a: Point3<f32>, b: Point3<f32>) -> Self {
@@ -109,5 +113,14 @@ impl AABB {
         }
         //let rec = HitRecord::new();
         return true; // Some(rec);
+    }
+
+    fn pad_to_minimums(&mut self) {
+        // this function adds some padding to the bounding box to avoid problems with two dimensional objects
+
+        let delta = 0.0001;
+        if self.x.size() < delta {self.x = self.x.expand(delta)};
+        if self.y.size() < delta {self.y = self.y.expand(delta)};
+        if self.z.size() < delta {self.z = self.z.expand(delta)};
     }
 }

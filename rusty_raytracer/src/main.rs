@@ -19,8 +19,10 @@ mod image_texture;
 mod vector_math;
 mod perlin;
 mod noise_texture;
+mod quad; 
 
 use noise_texture::NoiseTexture;
+use quad::Quad;
 use vector_math::{random_f32, random_f32_within, random_vec3, random_vec3_within};
 use checkered_texture::CheckerTexture;
 use bvh::BVHNode;
@@ -256,14 +258,62 @@ fn perlin_spheres() -> Result {
         Ok(())
 }
 
+fn quads() -> Result {
+
+    // Create World
+    let mut world = HittableList::new();
+
+    //let pertext = Box::new(NoiseTexture::new(4.0));
+
+    // Materials
+    let left_red = Box::new(Lambertian::new_from(Colour::new_from(1.0, 0.2, 0.2)));
+    let back_green = Box::new(Lambertian::new_from(Colour::new_from(0.2, 1.0, 0.2)));
+    let right_blue = Box::new(Lambertian::new_from(Colour::new_from(0.2, 0.2, 1.0)));
+    let upper_orange = Box::new(Lambertian::new_from(Colour::new_from(1.0, 0.5, 0.0)));
+    let lower_teal = Box::new(Lambertian::new_from(Colour::new_from(0.2, 0.8, 0.8)));
+    
+    //Quads
+    world.add(Box::new(Quad::new(Point3::new(-3.0, -2.0, 5.0), Vector3::new(0.0, 0.0, -4.0), Vector3::new(0.0, 4.0, 0.0), left_red)));
+    world.add(Box::new(Quad::new(Point3::new(-2.0, -2.0, 0.0), Vector3::new(4.0, 0.0, 0.0), Vector3::new(0.0, 4.0, 0.0), back_green)));
+    world.add(Box::new(Quad::new(Point3::new(3.0, -2.0, 1.0), Vector3::new(0.0, 0.0, 4.0), Vector3::new(0.0, 4.0, 0.0), right_blue)));
+    world.add(Box::new(Quad::new(Point3::new(-2.0, 3.0, 1.0), Vector3::new(4.0, 0.0, 0.0), Vector3::new(0.0, 0.0, 4.0), upper_orange)));
+    world.add(Box::new(Quad::new(Point3::new(-2.0, -3.0, 5.0), Vector3::new(4.0, 0.0, 0.0), Vector3::new(0.0, 0.0, -4.0), lower_teal)));
+
+    // bounding boxes
+    let world_bbox  = BVHNode::from_hittable_list(world);
+    let sync_world: Arc<dyn Hittable + Send + Sync> = Arc::new(world_bbox);
+    
+
+    //Camera
+    let mut cam = Camera::new();
+    
+    cam.aspect_ratio      = 1.0; //16.0 / 9.0;
+    // keep width at 1200, it doesn't work at 400
+    cam.image_width       = 1200.0;
+    cam.samples_per_pixel = 10;
+    cam.max_depth         = 5;
+
+    cam.vfov     = 80;
+    cam.lookfrom = Point3::new(0.0,0.0,9.0);
+    cam.lookat   = Point3::new(0.0,0.0,0.0);
+    cam.vup      = Vector3::new(0.0,1.0,0.0);
+
+    cam.defocus_angle = 0.0;
+
+    let _ = cam.render(&sync_world);
+
+    Ok(())
+}
+
 pub fn main() -> Result {
 
-    match 5 {
+    match 6 {
         1 => bouncing_spheres(),
         2 => checkered_spheres(),
         3 => earth(),
         4 => quick_earth_test(),
         5 => perlin_spheres(),
+        6 => quads(),
         _ => {todo!()}
     }
     
