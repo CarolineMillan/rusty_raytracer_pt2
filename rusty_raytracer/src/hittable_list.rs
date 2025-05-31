@@ -37,7 +37,7 @@ impl HittableList {
 impl Hittable for HittableList {
     fn hit(&self, ray: &Ray, ray_t: &Interval) -> Option<HitRecord> {
         // returns a HitRecord if ray intersects an object between t_min and t_max
-        println!("hit for hittable list");
+        //println!("hit for hittable list");
         let mut closest_so_far  = ray_t.max;
         let mut final_hit = None;
 

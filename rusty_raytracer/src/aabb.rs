@@ -2,15 +2,15 @@
 
 use std::cmp::max;
 
-use nalgebra::Point3;
+use nalgebra::{Point3, Vector3};
 
 use crate::{hittable::HitRecord, interval::Interval, ray::Ray};
 #[derive(Clone)]
 #[derive(Debug)]
 pub struct AABB {
-    x: Interval,
-    y: Interval,
-    z: Interval,
+    pub x: Interval,
+    pub y: Interval,
+    pub z: Interval,
 }
 
 impl AABB {
@@ -122,5 +122,11 @@ impl AABB {
         if self.x.size() < delta {self.x = self.x.expand(delta)};
         if self.y.size() < delta {self.y = self.y.expand(delta)};
         if self.z.size() < delta {self.z = self.z.expand(delta)};
+    }
+
+    pub fn translate(&mut self, offset: &Vector3<f32>) {
+        self.x.translate(offset.x);
+        self.y.translate(offset.y);
+        self.z.translate(offset.z);
     }
 }

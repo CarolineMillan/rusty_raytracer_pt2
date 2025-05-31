@@ -60,6 +60,11 @@ impl Interval {
         let padding = delta;
         return Interval::new(self.min - padding, self.max + padding);
     }
+
+    pub fn translate(&mut self, offset: f32) {
+        self.min += offset;
+        self.max += offset;
+    }
 }
 
 //const EMPTY: Interval = Interval::new(f32::INFINITY, f32::INFINITY);

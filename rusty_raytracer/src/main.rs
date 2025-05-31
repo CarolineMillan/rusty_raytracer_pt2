@@ -21,10 +21,14 @@ mod perlin;
 mod noise_texture;
 mod quad; 
 mod diffuse_light;
+mod translate;
+mod rotate_y;
 
 use diffuse_light::DiffuseLight;
 use noise_texture::NoiseTexture;
-use quad::Quad;
+use quad::{make_box, Quad};
+use rotate_y::RotateY;
+use translate::Translate;
 use vector_math::{random_f32, random_f32_within, random_vec3, random_vec3_within};
 use checkered_texture::CheckerTexture;
 use bvh::BVHNode;
@@ -369,6 +373,15 @@ fn cornell_box() -> Result {
     world.add(Box::new(Quad::new(Point3::new(555.0, 555.0,  555.0), Vector3::new(-555.0, 0.0, 0.0), Vector3::new(0.0, 0.0, -555.0), white.clone())));
     world.add(Box::new(Quad::new(Point3::new(0.0, 0.0,  555.0), Vector3::new(555.0, 0.0, 0.0), Vector3::new(0.0, 555.0, 0.0), white.clone())));
 
+    let box1 = Box::new(make_box(&Point3::new(0.0, 0.0, 0.0), &Point3::new(165.0, 330.0, 165.0), white.clone()));
+    let box1_rotated = Box::new(RotateY::new(box1.clone(), 15.0));
+    let box1_translated = Box::new(Translate::new(box1_rotated.clone(), Vector3::new(265.0,  0.0, 295.0)));
+    world.add(box1_translated);
+
+    let box2 = Box::new(make_box(&Point3::new(0.0, 0.0, 0.0), &Point3::new(165.0, 165.0, 165.0), white.clone()));
+    let box2_rotated = Box::new(RotateY::new(box2.clone(), -18.0));
+    let box2_translated = Box::new(Translate::new(box2_rotated.clone(), Vector3::new(130.0, 0.0, 65.0)));
+    world.add(box2_translated);
 
     let world_bbox  = BVHNode::from_hittable_list(world);
     let sync_world: Arc<dyn Hittable + Send + Sync> = Arc::new(world_bbox);
@@ -378,8 +391,8 @@ fn cornell_box() -> Result {
     
     cam.aspect_ratio      = 1.0;
     // keep width at 1200, it doesn't work at 400
-    cam.image_width       = 1200.0;
-    cam.samples_per_pixel = 10;
+    cam.image_width       = 600.0;
+    cam.samples_per_pixel = 100;
     cam.max_depth         = 5;
     cam.background = Colour::new_from(0.0, 0.0, 0.0);
 

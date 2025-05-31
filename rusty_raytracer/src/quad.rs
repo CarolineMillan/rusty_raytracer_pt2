@@ -4,6 +4,7 @@ use std::env::consts;
 
 use crate::aabb::AABB;
 use crate::hittable::{Hittable, HitRecord};
+use crate::hittable_list::HittableList;
 use crate::interval::Interval;
 use crate::ray::Ray;
 use crate::material::Material;
@@ -40,6 +41,8 @@ impl Quad {
             w: n/(n.dot(&n)),
         }
     }
+
+    
 
 }
 
@@ -101,4 +104,26 @@ fn is_interior(a: f32, b: f32) -> Option<(f32, f32)> {
         return None;
     };
     return Some((a, b));
+}
+
+pub fn make_box(a: &Point3<f32>, b: &Point3<f32>, mat: Box<dyn Material>) -> HittableList {
+    // makes a 3d box (6 sides) that contains the two opposite vertices a and b
+
+    let mut sides = HittableList::new();
+
+    let min = Point3::new(a.x.min(b.x), a.y.min(b.y), a.z.min(b.z));
+    let max = Point3::new(a.x.max(b.x), a.y.max(b.y), a.z.max(b.z));
+
+    let dx = Vector3::new(max.x - min.x, 0.0, 0.0);
+    let dy = Vector3::new(0.0, max.y - min.y, 0.0);
+    let dz = Vector3::new(0.0, 0.0, max.z - min.z);
+
+    sides.add(Box::new(Quad::new(Point3::new(min.x, min.y, max.z), dx, dy, mat.clone())));
+    sides.add(Box::new(Quad::new(Point3::new(max.x, min.y, max.z), -dz, dy, mat.clone())));
+    sides.add(Box::new(Quad::new(Point3::new(max.x, min.y, min.z), -dx, dy, mat.clone())));
+    sides.add(Box::new(Quad::new(Point3::new(min.x, min.y, min.z), dz, dy, mat.clone())));
+    sides.add(Box::new(Quad::new(Point3::new(min.x, max.y, max.z), dx, -dz, mat.clone())));
+    sides.add(Box::new(Quad::new(Point3::new(min.x, min.y, min.z), dx, dz, mat.clone())));
+
+    return sides;
 }
