@@ -1,5 +1,5 @@
-use crate::{colour::Colour, hittable::HitRecord, material::Material, ray::Ray};
-use crate::vector_math::{ random_unit_vector, reflect};
+use crate::{core::colour::Colour, geometry::hittable::HitRecord, materials::material::Material, core::ray::Ray};
+use crate::util::vector_math::{ random_unit_vector, reflect};
 
 
 pub struct Metal {

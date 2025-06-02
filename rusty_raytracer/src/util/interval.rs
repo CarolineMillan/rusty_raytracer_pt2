@@ -9,6 +9,7 @@ pub struct Interval {
 impl Interval {
     
     pub fn default() -> Self {
+        // universe
         Self {
             min: f32::INFINITY,
             max: -1.0*f32::INFINITY,
@@ -19,6 +20,13 @@ impl Interval {
         Self {
             min: 0.0,
             max: 0.0,
+        }
+    }
+
+    pub fn universe() -> Self {
+        Self {
+            min: -1.0*f32::INFINITY,
+            max: f32::INFINITY,
         }
     }
     

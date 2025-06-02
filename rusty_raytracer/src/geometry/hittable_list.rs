@@ -1,7 +1,7 @@
-use crate::aabb::AABB;
-use crate::hittable::{Hittable, HitRecord};
-use crate::interval::Interval;
-use crate::ray::Ray;
+use crate::geometry::aabb::AABB;
+use crate::geometry::hittable::{Hittable, HitRecord};
+use crate::util::interval::Interval;
+use crate::core::ray::Ray;
 
 #[derive(Clone)]
 pub struct HittableList {
@@ -51,7 +51,7 @@ impl Hittable for HittableList {
     }
 
     fn bounding_box(&self) -> AABB {
-        println!("in hittable list bbox");
+        //println!("in hittable list bbox");
         return self.bbox.clone().expect("Hittable list has no objects");
     }
 

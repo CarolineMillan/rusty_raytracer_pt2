@@ -11,10 +11,10 @@ use rayon::prelude::*;
 use rayon::iter::IntoParallelIterator;
 use std::sync::atomic::{AtomicUsize, Ordering};
 
-use crate::colour::{self, write_colour_string};
-use crate::interval::Interval;
-use crate::vector_math::{degrees_to_radians, random_f32, random_in_unit_disk};
-use crate::{hittable::Hittable, hittable_list::HittableList, ray::Ray, colour::{write_colour, Colour}};
+use crate::core::colour::write_colour_string;
+use crate::util::interval::Interval;
+use crate::util::vector_math::{degrees_to_radians, random_f32, random_in_unit_disk};
+use crate::{geometry::hittable::Hittable, core::ray::Ray, core::colour::Colour};
 
 pub struct Camera {
     pub aspect_ratio: f32,
@@ -92,12 +92,15 @@ impl Camera {
         self.v = self.w.cross(&self.u);
 
         // Ensure viewport sizes are sensible
+        /*
+        println!("INITIALIZING CAMERA");
         println!("Viewport width: {}", viewport_width);
         println!("Viewport height: {}", viewport_height);
         println!("lookfrom: {}", self.lookfrom);
         println!("lookat: {}", self.lookat);
         println!("vfov: {}", self.vfov);
         println!("aspect_ratio: {}", self.aspect_ratio);
+        */
     
         // Vectors along viewport edges
         let viewport_u = viewport_width*self.u;
@@ -170,6 +173,7 @@ impl Camera {
                 if completed % 1 == 0 || completed == self.image_height as usize {
                     println!("Progress: {}/{}", completed, self.image_height);
                 }
+                //println!("*");
                 row
             })
             .collect();
@@ -189,6 +193,7 @@ impl Camera {
 
     fn ray_colour(&self, ray: &Ray, depth: u32, world: &Arc<dyn Hittable + Send + Sync>) -> Colour {
         if depth <= 0 {return Colour::new()};
+        //println!("*");
 
         let my_world = Arc::clone(&world);
 

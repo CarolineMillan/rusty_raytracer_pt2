@@ -1,15 +1,13 @@
 // struct for parallelograms (the tutorial RTiOW calls them quadrilaterals)
 
-use std::env::consts;
 
-use crate::aabb::AABB;
-use crate::hittable::{Hittable, HitRecord};
-use crate::hittable_list::HittableList;
-use crate::interval::Interval;
-use crate::ray::Ray;
-use crate::material::Material;
-use nalgebra::{Normed, Point3, Vector3};
-use nalgebra::RealField;
+use crate::geometry::aabb::AABB;
+use crate::geometry::hittable::{Hittable, HitRecord};
+use crate::geometry::hittable_list::HittableList;
+use crate::util::interval::Interval;
+use crate::core::ray::Ray;
+use crate::materials::material::Material;
+use nalgebra::{Point3, Vector3};
 
 #[derive(Clone)]
 

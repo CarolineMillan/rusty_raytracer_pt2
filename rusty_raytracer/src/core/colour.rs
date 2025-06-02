@@ -2,7 +2,7 @@ use nalgebra::Vector3;
 use std::fs::File;
 use std::io::Write;
 
-use crate::interval::Interval;
+use crate::util::interval::Interval;
 
 #[derive(Clone)]
 // not a new struct, we want a Newtype pattern, essentially a wrapper for Vector3<f32>

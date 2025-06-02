@@ -1,6 +1,6 @@
 use nalgebra::Point3;
 
-use crate::colour::Colour;
+use crate::core::colour::Colour;
 
 pub trait Texture: Send + Sync {
 

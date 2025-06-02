@@ -1,13 +1,12 @@
 // translated directly from the cpp in listing 34 of ray tracing the next week
 // the tutorial gave no explanation of the code
 
-use nalgebra::{ComplexField, Point3, Vector3};
+use nalgebra::{Point3, Vector3};
 
-use crate::{random_f32, random_f32_within, vector_math::{random_unit_vector, random_vec3}};
+use crate::{util::vector_math::{random_unit_vector, random_f32_within}};
 
 pub struct Perlin {
     point_count: usize, // 256;
-    //randf32: [f32; 256],
     randvec: [Vector3<f32>; 256],
     perm_x: [i32; 256],
     perm_y: [i32; 256],
@@ -31,7 +30,6 @@ impl Perlin {
     pub fn init(&mut self) {
 
         for i in 0..self.point_count {
-            //self.randf32[i] = random_f32();
             self.randvec[i] = random_unit_vector();
         }
 
@@ -42,9 +40,9 @@ impl Perlin {
 
     pub fn noise(&self, p: &Point3<f32>) -> f32 {
 
-        let mut u = p.x - p.x.floor();
-        let mut v = p.y - p.y.floor();
-        let mut w = p.z - p.z.floor();
+        let u = p.x - p.x.floor();
+        let v = p.y - p.y.floor();
+        let w = p.z - p.z.floor();
 
         /*
         // hermitian smoothing so that the interpolation doesn't look too grid-like
@@ -85,22 +83,14 @@ impl Perlin {
             p[i] = i as i32;
         }
 
-        //self.permute(p, self.point_count as i32);
-
         for i in (1..n).rev() {
-            // is there a nice rust function that does this?
+            // is there a nice rust function that does this? swap
             let r = random_f32_within(0.0, (i+1) as f32);
             let j = r.floor() as usize;
             let tmp = p[i as usize];
             p[i as usize] = p[j];
             p[j] = tmp;
         }
-
-        // debug print
-        for i in 0..10 {
-            println!("perm[{}] = {}", i, p[i]);
-        }
-
     }
 
     fn trilinear_interpolation(&self, c: [[[f32; 2]; 2]; 2], u: f32, v: f32, w: f32) -> f32 {
@@ -153,7 +143,7 @@ impl Perlin {
         let temp_p = p;
         let mut weight = 1.0;
 
-        for i in 0..depth {
+        for _i in 0..depth {
             accum += weight*self.noise(temp_p);
             weight *= 0.5;
             temp_p.x *= 2.0;
@@ -163,24 +153,7 @@ impl Perlin {
         return accum.abs();
     }
 
-    /*
-    fn permute(&self, p: &mut [i32; 256], n: i32) {
-        // changed from cpp code to use Fisher-Yates shuffle
-
-        // p is perm_x or perm_y or perm_z
-        for i in (1..n).rev() {
-            // is there a nice rust function that does this?
-            let r = random_f32_within(0.0, (i+1) as f32);
-            let j = r.floor() as usize;
-            let tmp = p[i as usize];
-            p[i as usize] = p[j];
-            p[j] = tmp;
-        }
-    }
-*/
-    fn clone_box(&self) -> Box<dyn Send + Sync> {
-        Box::new(self.clone())
-    }
+    fn clone_box(&self) -> Box<dyn Send + Sync> {return Box::new(self.clone());}
 
 }
 

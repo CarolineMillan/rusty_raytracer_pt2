@@ -12,19 +12,17 @@ pub fn random_f32() -> f32 {
     let mut rng = rng();
     rng.random()
 }
-
+/*
 pub fn random_u32() -> u32 {
     let mut rng = rng();
     return rng.random::<u32>();
 }
 
-/*
 pub fn random_u32_within(min: u32, max: u32) -> u32 {
     let mut rng = rng();
     let random_u32: u32 = rng.random::<u32>();
     return min + (max-min)*random_u32;
 }
-*/
 
 pub fn random_u32_within(min: u32, max: u32) -> u32 {
     let mut rng = rng();
@@ -33,7 +31,7 @@ pub fn random_u32_within(min: u32, max: u32) -> u32 {
     let scaled = (random_u32 * range) / (u32::MAX as u64 + 1);
     min + scaled as u32
 }
-
+*/
 pub fn random_f32_within(min: f32, max: f32) -> f32 {
     let mut rng = rng();
     let random_f32: f32 = rng.random();

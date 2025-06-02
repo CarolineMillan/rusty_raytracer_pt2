@@ -1,12 +1,10 @@
-use std::env::consts;
 
-use crate::aabb::AABB;
-use crate::hittable::{Hittable, HitRecord};
-use crate::interval::Interval;
-use crate::ray::Ray;
-use crate::material::Material;
+use crate::geometry::aabb::AABB;
+use crate::geometry::hittable::{Hittable, HitRecord};
+use crate::util::interval::Interval;
+use crate::core::ray::Ray;
+use crate::materials::material::Material;
 use nalgebra::{Point3, Vector3};
-use nalgebra::RealField;
 
 #[derive(Clone)]
 

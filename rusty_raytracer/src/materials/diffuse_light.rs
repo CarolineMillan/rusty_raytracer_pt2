@@ -1,6 +1,6 @@
-use nalgebra::{Point3, Vector3};
+use nalgebra::{Point3};
 
-use crate::{colour::Colour, hittable::HitRecord, material::Material, random_f32, ray::Ray, solid_colour::SolidColour, texture::Texture, vector_math::{reflect, refract}};
+use crate::{core::colour::Colour, materials::material::Material, textures::solid_colour::SolidColour, textures::texture::Texture};
 
 pub struct DiffuseLight {
     tex: Box<dyn Texture>,

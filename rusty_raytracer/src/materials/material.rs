@@ -1,15 +1,15 @@
 use dyn_clone::DynClone;
 use nalgebra::Point3;
 
-use crate::{colour::Colour, hittable::HitRecord, ray::Ray};
+use crate::{core::colour::Colour, geometry::hittable::HitRecord, core::ray::Ray};
 
 pub trait Material: Send + Sync + DynClone{
 
-    fn scatter(&self, r_in: &Ray, rec: &HitRecord) -> Option<(Colour, Ray)> {
+    fn scatter(&self, _r_in: &Ray, _rec: &HitRecord) -> Option<(Colour, Ray)> {
         None
     }
 
-    fn emitted(&self, u: f32, v: f32, p: Point3<f32>) -> Colour {
+    fn emitted(&self, _u: f32, _v: f32, _p: Point3<f32>) -> Colour {
         return Colour::new();
     }
     fn clone_box(&self) -> Box<dyn Material + Send + Sync>;

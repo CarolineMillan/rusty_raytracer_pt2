@@ -1,6 +1,6 @@
 use std::cmp::Ordering;
 
-use crate::{aabb::AABB, hittable::{HitRecord, Hittable}, hittable_list::HittableList, interval::Interval, vector_math::random_u32_within, ray::Ray};
+use crate::{geometry::aabb::AABB, geometry::hittable::{HitRecord, Hittable}, geometry::hittable_list::HittableList, util::interval::Interval, core::ray::Ray};
 
 #[derive(Clone)]
 pub struct BVHNode {
@@ -57,7 +57,7 @@ impl BVHNode {
         //let bbox = AABB::new_from_boxes(&left.bounding_box(), &right.bounding_box());
         
         //println!("almost there...");
-        println!("Bounding Box Created: {:?}", bbox);
+        //println!("Bounding Box Created: {:?}", bbox);
         Self {
             left, 
             right, 

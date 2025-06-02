@@ -1,10 +1,8 @@
 // axis aligned bounding rectangular parallelapiped (or box), AABB for short
 
-use std::cmp::max;
-
 use nalgebra::{Point3, Vector3};
 
-use crate::{hittable::HitRecord, interval::Interval, ray::Ray};
+use crate::{util::interval::Interval, core::ray::Ray};
 #[derive(Clone)]
 #[derive(Debug)]
 pub struct AABB {

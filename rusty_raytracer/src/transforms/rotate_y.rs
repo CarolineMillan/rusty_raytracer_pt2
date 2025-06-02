@@ -1,12 +1,11 @@
 // struct for moving hittable objects
 
-use std::f32::INFINITY;
 
-use crate::aabb::AABB;
-use crate::hittable::{Hittable, HitRecord};
-use crate::interval::Interval;
-use crate::ray::Ray;
-use crate::vector_math::degrees_to_radians;
+use crate::geometry::aabb::AABB;
+use crate::geometry::hittable::{Hittable, HitRecord};
+use crate::util::interval::Interval;
+use crate::core::ray::Ray;
+use crate::util::vector_math::degrees_to_radians;
 use nalgebra::{Point3, Vector3};
 
 #[derive(Clone)]
@@ -52,8 +51,6 @@ impl RotateY {
 
         bbox = AABB::new_from_extrema(min, max);
 
-        println!("bbox_rotated: {:?}", bbox);
-
         Self {
             object,
             sin_theta,
@@ -82,20 +79,12 @@ impl Hittable for RotateY {
             hit_rec.p = Point3::new((self.cos_theta*hit_rec.p.x) + (self.sin_theta*hit_rec.p.z), hit_rec.p.y, (-1.0*self.sin_theta*hit_rec.p.x) + (self.cos_theta*hit_rec.p.z));
 
             hit_rec.normal = Vector3::new((self.cos_theta*hit_rec.normal.x) + (self.sin_theta*hit_rec.normal.z), hit_rec.normal.y, (-1.0*self.sin_theta*hit_rec.normal.x) + (self.cos_theta*hit_rec.normal.z));
-            //hit_rec.p += self.offset; //hit_rec.set_face_normal(ray, &self.object.normal);
             return Some(hit_rec);
         }
-        else {
-            return None;
-        }
+        else {return None;}
     }
 
-    fn bounding_box(&self) -> AABB {
-        //println!("in sphere bbox");
-        return self.bbox.clone();
-    }
+    fn bounding_box(&self) -> AABB {return self.bbox.clone();}
 
-    fn clone_box(&self) -> Box<dyn Hittable> {
-        Box::new((*self).clone())
-    }
+    fn clone_box(&self) -> Box<dyn Hittable> {return Box::new((*self).clone());}
 }

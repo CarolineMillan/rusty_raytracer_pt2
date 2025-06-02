@@ -1,6 +1,6 @@
 use nalgebra::Vector3;
 
-use crate::{colour::Colour, hittable::HitRecord, material::Material, random_f32, ray::Ray, vector_math::{reflect, refract}};
+use crate::{core::colour::Colour, geometry::hittable::HitRecord, materials::material::Material, core::ray::Ray, util::vector_math::{reflect, refract, random_f32}};
 
 pub struct Dielectric {
     refraction_index: f32,

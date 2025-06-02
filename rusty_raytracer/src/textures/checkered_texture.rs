@@ -1,6 +1,6 @@
 use nalgebra::Point3;
 
-use crate::{colour::Colour, solid_colour::SolidColour, texture::Texture};
+use crate::{core::colour::Colour, textures::solid_colour::SolidColour, textures::texture::Texture};
 
 pub struct CheckerTexture {
     inv_scale: f32,
@@ -30,18 +30,12 @@ impl Texture for CheckerTexture {
         let y_integer = (self.inv_scale * p.y).floor() as i32;
         let z_integer = (self.inv_scale * p.z).floor() as i32;
 
-        //println!("p: ({}, {}, {}), grid indices: ({}, {}, {})", p.x, p.y, p.z, x_integer, y_integer, z_integer);
-
-        //println!("x: {}, y: {}, z: {}", x_integer, y_integer, z_integer);
-
         let is_even = (x_integer + y_integer + z_integer) % 2 == 0;
         
         return if is_even {self.even.value(u, v, p)} else {self.odd.value(u, v, p)};
     }
 
-    fn clone_box(&self) -> Box<dyn Texture + Send + Sync> {
-        Box::new(self.clone())
-    }
+    fn clone_box(&self) -> Box<dyn Texture + Send + Sync> {return Box::new(self.clone());}
 }
 
 impl Clone for CheckerTexture {

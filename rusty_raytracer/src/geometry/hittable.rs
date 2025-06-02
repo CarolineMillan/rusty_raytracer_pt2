@@ -1,7 +1,7 @@
-use crate::lambertian::Lambertian;
-use crate::aabb::AABB;
-use crate::{material::Material, ray::Ray};
-use crate::interval::Interval;
+use crate::materials::lambertian::Lambertian;
+use crate::geometry::aabb::AABB;
+use crate::{materials::material::Material, core::ray::Ray};
+use crate::util::interval::Interval;
 
 use nalgebra::{Point3, Vector3};
 

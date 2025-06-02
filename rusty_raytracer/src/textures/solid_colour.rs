@@ -1,6 +1,6 @@
 use nalgebra::Point3;
 
-use crate::{colour::Colour, texture::Texture};
+use crate::{core::colour::Colour, textures::texture::Texture};
 
 pub struct SolidColour {
     albedo: Colour,
@@ -21,7 +21,7 @@ impl SolidColour {
 }
 
 impl Texture for SolidColour {
-    fn value(&self, u: f32, v: f32, p: &Point3<f32>) -> crate::colour::Colour {
+    fn value(&self, _u: f32, _v: f32, _p: &Point3<f32>) -> Colour {
         return self.albedo.clone();
     }
 
