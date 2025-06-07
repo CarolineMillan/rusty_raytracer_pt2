@@ -142,7 +142,63 @@ impl Camera {
 
         Ray::new_from(ray_origin, ray_direction, ray_time)
     }
+    pub fn render(&mut self, world: &Arc<dyn Hittable + Send + Sync>) -> io::Result<()> {
+        self.initialise();
 
+        // Open file and write a P6 (binary) PPM header
+        let mut file = File::create("rendered_image.ppm")?;
+        let header = format!("P6\n{} {}\n255\n", self.image_width, self.image_height);
+        file.write_all(header.as_bytes())?;
+
+        // Shared counter for progress reporting
+        let progress = Arc::new(AtomicUsize::new(0));
+
+        // Parallel compute each scanline as a Vec<u8> of RGB bytes
+        let rendered_rows: Vec<Vec<u8>> = (0..self.image_height as usize)
+            .into_par_iter()
+            .map(|j| {
+                // Pre-allocate exactly width * 3 bytes for this row
+                let mut row_buf = Vec::with_capacity(self.image_width as usize * 3);
+                let my_world = Arc::clone(&world);
+
+                for i in 0..self.image_width as usize {
+                    // Accumulate samples for this pixel
+                    let mut pixel_colour = Colour::new();
+                    for _ in 0..self.samples_per_pixel {
+                        let ray = self.get_ray(i, j);
+                        pixel_colour.0 += self.ray_colour(&ray, self.max_depth, &my_world).0;
+                    }
+                    pixel_colour.0 *= self.pixel_samples_scale;
+
+                    // Apply gamma correction (gamma = 2.0) and convert to u8
+                    let r = (pixel_colour.r().sqrt() * 255.999) as u8;
+                    let g = (pixel_colour.g().sqrt() * 255.999) as u8;
+                    let b = (pixel_colour.b().sqrt() * 255.999) as u8;
+
+                    row_buf.push(r);
+                    row_buf.push(g);
+                    row_buf.push(b);
+                }
+
+                // Update and print progress
+                let done = progress.fetch_add(1, Ordering::Relaxed) + 1;
+                if done % 1 == 0 || done == self.image_height as usize {
+                    println!("Progress: {}/{}", done, self.image_height);
+                }
+
+                row_buf
+            })
+            .collect();
+
+        // Write each row’s raw RGB bytes sequentially
+        for row in rendered_rows {
+            file.write_all(&row)?;
+        }
+
+        println!("\rDone.               ");
+        Ok(())
+    }
+    /* 
     pub fn render(&mut self, world: &Arc<dyn Hittable + Send + Sync>) -> io::Result<()> {
 
         self.initialise();
@@ -168,6 +224,9 @@ impl Camera {
                     }
                     pixel_colour.0 *= self.pixel_samples_scale;
                     row.push_str(&format!("{}\n", write_colour_string(pixel_colour)));
+                    // write pixel_colour to a minifb here if you want to produce an image directly
+                    // it'll be one pixel at a time I think
+                    // or collect them in a vector and write them one row at a time
                 }
                 let completed = progress.fetch_add(1, Ordering::Relaxed) + 1;
                 if completed % 1 == 0 || completed == self.image_height as usize {
@@ -185,6 +244,8 @@ impl Camera {
         println!("\rDone.               \n");
         Ok(())
     }
+    */
+
     fn defocus_disk_sample(&self) -> Point3<f32> {
         let p = random_in_unit_disk();
         return self.center + (p[0]*self.defocus_disk_u) + (p[1]*self.defocus_disk_v);

@@ -571,10 +571,7 @@ pub fn test_inner_spheres_quick() -> Result<(), ()> {
     );
 
     let moved_bbox = moved_bvh.bounding_box();
-    println!(
-        "[Debug] moved_bvh (RotateY + Translate) → {:?}\n",
-        moved_bbox
-    );
+    // println!("[Debug] moved_bvh (RotateY + Translate) → {:?}\n", moved_bbox);
 
     
     // 2. Wrap that single Hittable in a top-level HittableList so we can trace it:

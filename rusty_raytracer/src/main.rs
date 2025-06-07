@@ -22,7 +22,7 @@ pub fn main() -> Result<(), ()> {
         8 => cornell_box(),
         9 => cornell_smoke(),
         10 => final_scene(800.0, 10000, 40),
-        11 => final_scene(400.0, 50, 4),
+        11 => final_scene(400.0, 250, 4),
         12 => test_inner_spheres_quick(),
         _ => {todo!()}   
     }
