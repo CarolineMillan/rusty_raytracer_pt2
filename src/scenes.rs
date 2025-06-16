@@ -480,14 +480,14 @@ pub fn final_scene(image_width: f32, samples_per_pixel: u32, max_depth: u32) -> 
     world.add(Box::new(Sphere::new(Point3::new(0.0, 150.0, 145.0), 50.0, Box::new(Metal::new_from(Colour::new_from(0.8, 0.8, 0.9), 1.0)))));
 
     // volume stuff -- with a glass sphere around it? (volume inside a dielectric is what a subsurface material is, blue sphere in the image)
-    let boundary = Box::new(Sphere::new(Point3::new(360.0, 150.0, 145.0), 75.0, glass.clone()));
+    let boundary = Box::new(Sphere::new(Point3::new(360.0, 150.0, 145.0), 70.0, glass.clone()));
     world.add(boundary.clone());
 
-    world.add(Box::new(ConstantMedium::new_from_colour(boundary.clone(), 0.2, Colour::new_from(1.0, 1.0, 1.0))));
+    world.add(Box::new(ConstantMedium::new_from_colour(boundary.clone(), 0.2, Colour::new_from(0.2, 0.4, 0.9))));
 
     // thin layer of fog over the scene
-    let boundary2 = Box::new(Sphere::new(Point3::new(0.0, 0.0, 0.0), 5000.0, glass.clone()));
-    world.add(Box::new(ConstantMedium::new_from_colour(boundary2.clone(), 0.0001, Colour::new_from(1.0, 1.0, 1.0))));
+    //let boundary2 = Box::new(Sphere::new(Point3::new(0.0, 0.0, 0.0), 5000.0, glass.clone()));
+    //world.add(Box::new(ConstantMedium::new_from_colour(boundary2.clone(), 0.0001, Colour::new_from(1.0, 1.0, 1.0))));
     
     // planet earth
     let earth_tex = Box::new(ImageTexture::new_from_filename("earthmap.jpg"));
@@ -508,7 +508,7 @@ pub fn final_scene(image_width: f32, samples_per_pixel: u32, max_depth: u32) -> 
         boxes2.add(Box::new(Sphere::new(Point3::new(random_f32_within(0.0, 165.0), random_f32_within(0.0, 165.0), random_f32_within(0.0, 165.0)), 10.0, white.clone())));
     }
 
-    // THIS IS THE LINE I'M TAKING ABOUT, CHATGPT!
+   
     world.add(Box::new(Translate::new(Box::new(RotateY::new(Box::new(BVHNode::from_hittable_list(boxes2)), 15.0)), Vector3::new(-100.0, 270.0, 395.0))));
 
 

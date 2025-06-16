@@ -11,7 +11,7 @@ use crate::scenes::{bouncing_spheres, checkered_spheres, cornell_box, cornell_sm
 
 pub fn main() -> Result<(), ()> {
 
-    match 11 {
+    match 8 {
         1 => bouncing_spheres(),
         2 => checkered_spheres(),
         3 => earth(),
@@ -22,7 +22,7 @@ pub fn main() -> Result<(), ()> {
         8 => cornell_box(),
         9 => cornell_smoke(),
         10 => final_scene(800.0, 10000, 40),
-        11 => final_scene(400.0, 250, 4),
+        11 => final_scene(400.0, 20, 4),
         12 => test_inner_spheres_quick(),
         _ => {todo!()}   
     }

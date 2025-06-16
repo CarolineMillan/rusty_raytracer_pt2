@@ -38,6 +38,7 @@ impl Material for Isotropic {
         let scattered = Ray::new_from(rec.p, random_unit_vector(), r_in.time());
         let attenuation = self.tex.value(rec.u, rec.v, &rec.p);//self.albedo.clone();
         //println!("lambertian scattered: {:?}", scattered);
+        
         Some((attenuation, scattered))
     }
     

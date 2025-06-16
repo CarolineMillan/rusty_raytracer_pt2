@@ -122,7 +122,7 @@ impl Camera {
         self.defocus_disk_u = self.u*defocus_radius;
         self.defocus_disk_v = self.v*defocus_radius;
         // Double-check deltas
-        println!("Pixel deltas: u = {:?}, v = {:?}", self.pixel_delta_u, self.pixel_delta_v);
+        //println!("Pixel deltas: u = {:?}, v = {:?}", self.pixel_delta_u, self.pixel_delta_v);
     }
 
     pub fn set_image_size(&mut self, width: f32) {

@@ -5,6 +5,7 @@ use std::io::Write;
 use crate::util::interval::Interval;
 
 #[derive(Clone)]
+#[derive(Debug)]
 // not a new struct, we want a Newtype pattern, essentially a wrapper for Vector3<f32>
 pub struct Colour(pub Vector3<f32>);
 
